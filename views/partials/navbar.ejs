@@ -1,0 +1,124 @@
+<%
+  const currentPage = typeof page !== 'undefined' ? page : '';
+  const isLoggedIn = typeof loggedIn !== 'undefined' && loggedIn;
+%>
+<nav class="app-nav">
+  <div class="container nav__inner">
+    <a class="nav__brand" href="/">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <path d="M8 9h8M8 13h5"/>
+      </svg>
+      <span class="nav__brand-text"><%= appName %></span>
+    </a>
+
+    <div class="nav__links">
+      <% if (isLoggedIn) { %>
+        <% if (typeof isSupportAdmin === 'undefined' || isSupportAdmin) { %><a class="nav__link" href="/admin" <%- currentPage === 'admin' ? 'aria-current="page"' : '' %>>Übersicht</a><% } %>
+        <a class="nav__link" href="/admin/tickets" <%- currentPage === 'admin-tickets' ? 'aria-current="page"' : '' %>>
+          Tickets <span data-live-region="nav-count"><%- include('nav-count', { count: typeof adminTicketBadge !== 'undefined' ? adminTicketBadge : 0, title: 'Ungelesene Tickets' }) %></span>
+        </a>
+        <a class="nav__link" href="/support" <%- currentPage === 'support' ? 'aria-current="page"' : '' %>>Kundenportal</a>
+        <span
+          class="badge badge--mono"
+          data-idle-remaining
+          data-idle-timeout-ms="<%= adminIdleTimeoutMs %>"
+          title="Automatische Abmeldung nach Inaktivität"
+          aria-live="polite"
+          hidden></span>
+        <a class="nav__link nav__link--logout" href="/logout" title="Abmelden"><svg class="nav__logout-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="nav__logout-text">Abmelden</span></a>
+      <% } else if (typeof currentCustomer !== 'undefined' && currentCustomer) { %>
+        <a class="nav__link" href="/support" <%- currentPage === 'support' ? 'aria-current="page"' : '' %>>Hilfe</a>
+        <a class="nav__link" href="/account/tickets" <%- currentPage === 'account-tickets' ? 'aria-current="page"' : '' %>>
+          Meine Tickets <span data-live-region="nav-count"><%- include('nav-count', { count: customerUnread, title: 'Neue Antworten' }) %></span>
+        </a>
+        <a class="nav__link" href="/account/settings" <%- currentPage === 'account-settings' ? 'aria-current="page"' : '' %> title="Konto von <%= currentCustomer.email %>">Konto</a>
+        <a class="nav__link nav__link--logout" href="/account/logout" title="Abmelden"><svg class="nav__logout-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="nav__logout-text">Abmelden</span></a>
+      <% } else { %>
+        <a class="nav__link" href="/support" <%- currentPage === 'support' ? 'aria-current="page"' : '' %>>Support</a>
+        <a class="nav__link" href="/account/login" <%- currentPage === 'account-login' ? 'aria-current="page"' : '' %>>Anmelden</a>
+      <% } %>
+    </div>
+
+    <%# Bewusst ausserhalb von .nav__links: die Linkleiste scrollt auf
+        schmalen Displays horizontal, der Umschalter bliebe dort als letztes
+        Element unsichtbar hinter dem Rand haengen. %>
+    <div class="nav__actions">
+      <!-- popovertarget öffnet das Menü auch ohne JavaScript; theme.js hängt
+           sich nur an die Auswahl. -->
+      <button
+        type="button"
+        class="btn btn-text theme-secondary btn-icon"
+        data-theme-toggle
+        popovertarget="themeMenu"
+        aria-label="Farbschema wählen">
+        <svg data-theme-icon="system" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+        </svg>
+        <svg data-theme-icon="light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+        <!-- Ohne (oder bevor) JS ist "dark" das dokumentierte Default-Theme,
+             darum startet dieses Icon als einziges sichtbar — sonst waere
+             der Button bis zum Lauf von theme.js komplett leer. theme.js
+             korrigiert das sofort auf den tatsaechlich aufgeloesten Wert. -->
+        <svg data-theme-icon="dark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+
+      <div class="app-menu" popover id="themeMenu" role="menu" aria-label="Farbschema">
+        <p class="menu__label">Farbschema</p>
+
+        <button type="button" class="menu__item" role="menuitemradio" aria-checked="false" data-theme-choice="system">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+          System
+          <svg class="menu__check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        </button>
+
+        <button type="button" class="menu__item" role="menuitemradio" aria-checked="false" data-theme-choice="light">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+          Hell
+          <svg class="menu__check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        </button>
+
+        <button type="button" class="menu__item" role="menuitemradio" aria-checked="false" data-theme-choice="dark">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          Dunkel
+          <svg class="menu__check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<% if (isLoggedIn && (typeof isSupportAdmin === 'undefined' || isSupportAdmin)) { %>
+  <nav class="workspace-nav" aria-label="Verwaltungsbereiche">
+    <div class="container workspace-nav__inner">
+      <span class="workspace-nav__label">Weitere Bereiche</span>
+      <a class="workspace-nav__link" href="/admin/customers" <%- currentPage === 'admin-customers' ? 'aria-current="page"' : '' %>>Kunden</a>
+      <a class="workspace-nav__link" href="/admin/kb" <%- currentPage === 'admin-kb' ? 'aria-current="page"' : '' %>>Hilfeartikel</a>
+      <a class="workspace-nav__link" href="/admin/reports" <%- currentPage === 'admin-reports' ? 'aria-current="page"' : '' %>>Berichte</a>
+      <a class="workspace-nav__link" href="/admin/ticket-settings" <%- currentPage === 'admin-ticket-settings' ? 'aria-current="page"' : '' %>>Einstellungen</a>
+      <a class="workspace-nav__link" href="/admin/users" <%- currentPage === 'admin-users' ? 'aria-current="page"' : '' %>>Team</a>
+      <a class="workspace-nav__link" href="/admin/logs" <%- currentPage === 'admin-logs' ? 'aria-current="page"' : '' %>>Ereignisse</a>
+      <a class="workspace-nav__link" href="/admin/integrations" <%- currentPage === 'admin-integrations' ? 'aria-current="page"' : '' %>>Integrationen</a>
+    </div>
+  </nav>
+<% } %>

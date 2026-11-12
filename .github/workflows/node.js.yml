@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22 = untere Grenze aus package.json "engines" (LTS), 24 = was das
+        # Docker-Image ausliefert
+        node-version: [22.x, 24.x]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - name: Syntax-Check
+        run: npm run check:syntax
+      - name: Statische Analyse
+        run: npm run lint
+      - name: Tests mit Coverage-Grenzen
+        run: npm run test:coverage
+      - name: Security audit
+        run: npm audit --omit=dev --audit-level=high
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v7
+      - name: Image bauen
+        run: docker build -t ticket-system:ci .
+      - name: Keine Laufzeitdaten im Image
+        run: |
+          docker run --rm --entrypoint sh ticket-system:ci -c \
+            'test ! -e /app/.env && test -z "$(ls -A /app/data)" && test ! -e /app/test'
+      - name: Smoke-Test gegen /healthz
+        run: |
+          docker run -d --name ticket-system-smoke -p 3000:3000 \
+            -e TRUST_PROXY=1 -e METRICS_TOKEN=ci ticket-system:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:3000/healthz; then echo; break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:3000/healthz
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/metrics)" = 401
+          curl -fsS -H 'Authorization: Bearer ci' http://localhost:3000/metrics | grep -q ticket_system_build_info
+          # Geordnetes Herunterfahren: Exit-Code 0 nach SIGTERM
+          docker stop -t 40 ticket-system-smoke
+          test "$(docker inspect -f '{{.State.ExitCode}}' ticket-system-smoke)" = 0
+      - name: Container-Log bei Fehler
+        if: failure()
+        run: docker logs ticket-system-smoke || true
+      - name: Image-Scan (Trivy)
+        # v0.36.0, per SHA gepinnt (Tags ohne "v" wurden upstream entfernt)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: ticket-system:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Software-Stückliste erzeugen (CycloneDX)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: ticket-system:ci
+          format: cyclonedx
+          output: ticket-system.sbom.json
+          exit-code: "0"
+      - name: Software-Stückliste archivieren
+        uses: actions/upload-artifact@v6
+        with:
+          name: ticket-system-sbom
+          path: ticket-system.sbom.json
+          if-no-files-found: error

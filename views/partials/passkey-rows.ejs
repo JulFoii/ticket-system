@@ -1,0 +1,9 @@
+<%
+/*
+ * Nur die Schleife ueber `passkeys` — eigenes Partial, damit die Liste auf
+ * admin.ejs an einer Stelle definiert ist.
+ */
+%>
+<% passkeys.forEach(passkey => { %>
+  <%- include('passkey-row', { passkey }) %>
+<% }); %>

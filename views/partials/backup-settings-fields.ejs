@@ -1,0 +1,30 @@
+<%# Felder des Backup-Zeitplans (Live-Bereich "backup-settings", siehe
+    live-regions.js). %>
+        <div class="field">
+          <label class="form-label" for="backupInterval">Intervall (Minuten)</label>
+          <input
+            class="form-control"
+            type="number"
+            id="backupInterval"
+            name="intervalMinutes"
+            min="5"
+            max="1440"
+            value="<%= backupSettings.intervalMinutes %>"
+            required>
+        </div>
+        <div class="field">
+          <label class="form-label" for="backupRetention">Aufbewahrte Sicherungen</label>
+          <input
+            class="form-control"
+            type="number"
+            id="backupRetention"
+            name="retentionCount"
+            min="1"
+            max="500"
+            value="<%= backupSettings.retentionCount %>"
+            required>
+        </div>
+        <label class="app-row">
+          <input type="checkbox" id="backupEnabled" name="enabled" <%= backupSettings.enabled ? 'checked' : '' %>>
+          Automatische Sicherung aktiv
+        </label>

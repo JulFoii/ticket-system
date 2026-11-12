@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <%- include('../partials/head', { title: 'API & Webhooks', stylesheets: ['/css/api.css'] }) %>
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<%- include('../partials/navbar', { page: 'admin-integrations', loggedIn: true }) %>
+<%
+  const roleLabels = { admin: 'Administrator', agent: 'Agent' };
+  const scopeLabels = { read: 'Lesen', write: 'Schreiben', admin: 'Administration' };
+  const statusLabels = { pending: 'Ausstehend', delivered: 'Zugestellt', failed: 'Fehlgeschlagen' };
+  const statusClasses = { pending: 'badge--warning', delivered: 'badge--ok', failed: 'badge--danger' };
+%>
+<main class="main" id="main">
+  <div class="container stack">
+    <header class="page-header page-header--actions">
+      <div>
+        <p class="eyebrow">Integrationen</p>
+        <h1 class="page-header__title">API & Webhooks</h1>
+        <p class="page-header__lead">Verwalte Zugänge zur REST API und ausgehende Webhooks.</p>
+      </div>
+      <a class="btn btn-outline theme-secondary page-header__action" href="/api/docs">Swagger API-Dokumentation</a>
+    </header>
+
+    <% if (error) { %><%- include('../partials/alert', { variant: 'danger', text: error }) %><% } %>
+    <% if (notice) { %><%- include('../partials/alert', { variant: 'success', text: notice }) %><% } %>
+
+    <% if (secret) { %>
+      <section class="secret-panel" aria-labelledby="token-secret-title" aria-live="polite">
+        <div>
+          <h2 class="secret-panel__title" id="token-secret-title">API-Token jetzt kopieren</h2>
+          <p class="secret-panel__hint">Dieser Token wird nur einmal vollständig angezeigt.</p>
+          <code class="secret-panel__value"><%= secret %></code>
+        </div>
+        <button class="btn btn-outline theme-secondary btn-sm" type="button" data-copy="<%= secret %>">Token kopieren</button>
+      </section>
+    <% } %>
+
+    <% if (webhookSecret) { %>
+      <section class="secret-panel" aria-labelledby="webhook-secret-title" aria-live="polite">
+        <div>
+          <h2 class="secret-panel__title" id="webhook-secret-title">Signierschlüssel jetzt kopieren</h2>
+          <p class="secret-panel__hint">Dieser Schlüssel wird nur einmal vollständig angezeigt.</p>
+          <code class="secret-panel__value"><%= webhookSecret %></code>
+        </div>
+        <button class="btn btn-outline theme-secondary btn-sm" type="button" data-copy="<%= webhookSecret %>">Schlüssel kopieren</button>
+      </section>
+    <% } %>
+
+    <div class="settings-grid">
+      <section class="card">
+        <div class="card-header"><div><h2 class="card-title">API-Tokens</h2><p class="card-subtitle">Erstelle getrennte Zugänge für jede Anwendung.</p></div></div>
+        <div class="card-body stack">
+          <form action="/admin/integrations/tokens" method="post" class="integration-form">
+            <div class="field"><label class="form-label" for="token-name">Name</label><input class="form-control" id="token-name" name="name" maxlength="100" required placeholder="z. B. CRM Produktion"></div>
+            <fieldset class="field integration-scopes"><legend class="form-label">Berechtigungen</legend><label class="check-line"><input type="checkbox" name="write" value="1"> Schreiben</label><label class="check-line"><input type="checkbox" name="admin" value="1"> Administration</label></fieldset>
+            <button class="btn btn-solid theme-primary" type="submit">Token erstellen</button>
+          </form>
+          <% if (tokens.length) { %>
+            <div class="table-responsive"><table class="table">
+              <thead><tr><th scope="col">Name</th><th scope="col">Rolle und Rechte</th><th scope="col">Zuletzt verwendet</th><th scope="col"><span class="visually-hidden">Aktionen</span></th></tr></thead>
+              <tbody><% for (const token of tokens) { %><tr>
+                <td data-label="Name"><strong><%= token.name %></strong></td>
+                <td data-label="Rolle und Rechte"><%= roleLabels[token.role] || token.role %> · <%= token.scopes.map((scope) => scopeLabels[scope] || scope).join(', ') %></td>
+                <td data-label="Zuletzt verwendet"><%= token.lastUsedAt ? formatDateTime(token.lastUsedAt) : 'Noch nie' %></td>
+                <td class="table-actions"><form action="/admin/integrations/tokens/<%= token.id %>/delete" method="post" data-confirm="Token „<%= token.name %>“ endgültig löschen?" data-confirm-ok="Token löschen"><button class="btn btn-text theme-danger btn-sm" type="submit">Löschen</button></form></td>
+              </tr><% } %></tbody>
+            </table></div>
+          <% } else { %><p class="empty empty--compact">Noch keine API-Tokens vorhanden.</p><% } %>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><div><h2 class="card-title">Webhooks</h2><p class="card-subtitle">Sende Ereignisse automatisch an andere Anwendungen.</p></div></div>
+        <div class="card-body stack">
+          <form action="/admin/integrations/webhooks" method="post" class="integration-form">
+            <div class="field"><label class="form-label" for="webhook-name">Name</label><input class="form-control" id="webhook-name" name="name" maxlength="100" required placeholder="z. B. Monitoring"></div>
+            <div class="field"><label class="form-label" for="webhook-url">Ziel-URL</label><input class="form-control" id="webhook-url" name="url" type="url" required placeholder="https://example.org/hooks/tickets"></div>
+            <div class="field"><label class="form-label" for="webhook-events">Ereignisse</label><input class="form-control" id="webhook-events" name="events" value="*" placeholder="api_ticket_created, ticket_automation"><p class="form-help">Kommagetrennte Ereignisnamen oder <code>*</code> für alle Ereignisse.</p></div>
+            <button class="btn btn-solid theme-primary" type="submit">Webhook erstellen</button>
+          </form>
+          <% if (webhooks.length) { %>
+            <div class="table-responsive"><table class="table">
+              <thead><tr><th scope="col">Name</th><th scope="col">Ziel-URL</th><th scope="col">Ereignisse</th><th scope="col"><span class="visually-hidden">Aktionen</span></th></tr></thead>
+              <tbody><% for (const hook of webhooks) { %><tr>
+                <td data-label="Name"><strong><%= hook.name %></strong></td><td data-label="Ziel-URL"><code class="break-anywhere"><%= hook.url %></code></td><td data-label="Ereignisse"><%= hook.events.join(', ') %></td>
+                <td class="table-actions"><form action="/admin/integrations/webhooks/<%= hook.id %>/delete" method="post" data-confirm="Webhook „<%= hook.name %>“ löschen?" data-confirm-ok="Webhook löschen"><button class="btn btn-text theme-danger btn-sm" type="submit">Löschen</button></form></td>
+              </tr><% } %></tbody>
+            </table></div>
+          <% } else { %><p class="empty empty--compact">Noch keine Webhooks vorhanden.</p><% } %>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-header"><div><h2 class="card-title">Letzte Auslieferungen</h2><p class="card-subtitle">Status der zuletzt gesendeten Webhook-Ereignisse.</p></div></div>
+      <div class="card-body">
+        <% if (deliveries.length) { %>
+          <div class="table-responsive"><table class="table">
+            <thead><tr><th scope="col">Ereignis</th><th scope="col">Status</th><th scope="col">Versuche</th><th scope="col">HTTP-Status oder Fehler</th><th scope="col"><span class="visually-hidden">Aktionen</span></th></tr></thead>
+            <tbody><% for (const item of deliveries) { %><tr>
+              <td data-label="Ereignis"><code><%= item.event %></code></td><td data-label="Status"><span class="badge <%= statusClasses[item.status] || '' %>"><%= statusLabels[item.status] || item.status %></span></td><td data-label="Versuche"><%= item.attempts %></td><td data-label="HTTP-Status oder Fehler"><%= item.responseStatus || item.lastError || '—' %></td>
+              <td class="table-actions"><% if (item.status === 'failed') { %><form action="/admin/integrations/deliveries/<%= item.id %>/retry" method="post"><button class="btn btn-outline theme-secondary btn-sm" type="submit">Erneut versuchen</button></form><% } %></td>
+            </tr><% } %></tbody>
+          </table></div>
+        <% } else { %><p class="empty empty--compact">Noch keine Webhook-Auslieferungen vorhanden.</p><% } %>
+      </div>
+    </section>
+  </div>
+</main>
+<%- include('../partials/footer') %>
+<script src="<%= asset('/js/toast.js') %>"></script>
+<script src="<%= asset('/js/copy.js') %>"></script>
+</body>
+</html>

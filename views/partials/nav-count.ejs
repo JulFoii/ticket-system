@@ -1,0 +1,4 @@
+<%# Zaehler am Tickets-Link der Navigation. Eigenes Partial, weil
+    GET /partials/nav ihn einzeln nachliefert (Live-Bereich "nav-count",
+    siehe live-regions.js). %>
+<% if (count > 0) { %><span class="nav__count" title="<%= title %>"><%= count %></span><% } %>

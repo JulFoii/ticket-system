@@ -1,0 +1,41 @@
+{
+  "name": "ticket-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Selbst gehostetes Ticketsystem mit Kundenportal, Wissensdatenbank, E-Mail-Anbindung und Admin-Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=93 --test-coverage-branches=79 --test-coverage-functions=90 --test test/*.test.js",
+    "lint": "eslint server.js lib public/js test scripts eslint.config.js",
+    "check:format": "node scripts/check-format.js",
+    "check:syntax": "node scripts/check-syntax.js",
+    "check:production": "node scripts/check-production.js",
+    "backup:create": "node scripts/create-backup.js",
+    "loadtest": "node scripts/load-test.js",
+    "loadtest:local": "node scripts/load-test-local.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@simplewebauthn/server": "^14.0.3",
+    "bootstrap": "6.0.0-alpha.1",
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.3",
+    "express-session": "^1.18.1",
+    "helmet": "^8.3.0",
+    "imapflow": "^2.10.2",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.3.1",
+    "swagger-ui-dist": "^5.30.3"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5"
+  }
+}

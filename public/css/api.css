@@ -1,0 +1,139 @@
+.settings-grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.integration-form {
+  display: grid;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.card-subtitle,
+.form-help {
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.integration-scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.integration-scopes .form-label { flex-basis: 100%; }
+
+.secret-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--success);
+  border-radius: var(--radius-lg);
+  background: var(--success-subtle);
+}
+
+.secret-panel__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
+}
+
+.secret-panel__hint {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+}
+
+.secret-panel__value,
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.empty--compact {
+  margin: 0;
+  padding-block: var(--space-5);
+}
+
+.table-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.swagger-shell {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.swagger-ui {
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+.swagger-ui .info,
+.swagger-ui .scheme-container,
+.swagger-ui .opblock-tag,
+.swagger-ui section.models { margin-inline: var(--space-5); }
+
+.swagger-ui .scheme-container {
+  background: var(--surface-sunken);
+  box-shadow: none;
+}
+
+.swagger-ui .info .title,
+.swagger-ui .info p,
+.swagger-ui .info li,
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui .opblock-external-docs-wrapper p,
+.swagger-ui .opblock-title_normal p,
+.swagger-ui .response-col_status,
+.swagger-ui table thead tr td,
+.swagger-ui table thead tr th,
+.swagger-ui .model-title,
+.swagger-ui .model,
+.swagger-ui section.models h4 { color: var(--text); }
+
+.swagger-ui .btn,
+.swagger-ui select,
+.swagger-ui input[type="text"],
+.swagger-ui textarea {
+  border-color: var(--border-strong);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.swagger-ui .opblock .opblock-section-header,
+.swagger-ui section.models .model-container { background: var(--surface-sunken); }
+
+.swagger-ui section.models,
+.swagger-ui section.models.is-open h4 { border-color: var(--border); }
+
+@media (min-width: 60rem) {
+  .settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 48rem) {
+  .integration-form { grid-template-columns: minmax(0, 1fr) auto; }
+}
+
+@media (max-width: 47.99rem) {
+  .secret-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .secret-panel .btn { align-self: flex-start; }
+
+  .swagger-ui .info,
+  .swagger-ui .scheme-container,
+  .swagger-ui .opblock-tag,
+  .swagger-ui section.models { margin-inline: var(--space-3); }
+}

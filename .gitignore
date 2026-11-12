@@ -1,0 +1,30 @@
+# Abhaengigkeiten
+node_modules/
+
+# Laufzeitdaten — enthalten Datenbank (Passwort-Hash, Session-Secret,
+# Kundendaten), Event-Log, Backups und Ticket-Anhaenge
+data/
+tmp-uploads/
+*.db
+*.db-wal
+*.db-shm
+
+# Lokale Konfiguration und Secrets (.env.example bleibt versioniert)
+.env
+.env.*
+!.env.example
+
+# Logs und Werkzeuge
+logs/
+*.log
+npm-debug.log*
+coverage/
+.nyc_output/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Archive
+*.zip
+*.tgz

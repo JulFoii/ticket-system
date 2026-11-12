@@ -1,0 +1,4 @@
+# Einheitliche LF-Zeilenenden im Repository, unabhaengig vom Betriebssystem
+* text=auto eol=lf
+*.png binary
+*.ico binary

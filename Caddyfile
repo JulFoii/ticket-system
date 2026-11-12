@@ -1,0 +1,19 @@
+# TLS-Terminierung fuer das Ticketsystem (docker compose --profile tls up -d).
+# Caddy holt und erneuert das Let's-Encrypt-Zertifikat fuer {$DOMAIN}
+# automatisch; Port 80 wird nur fuer die ACME-Challenge und die Umleitung
+# auf https gebraucht.
+#
+# Caddy vertraut eingehenden X-Forwarded-For-Headern nicht (keine
+# trusted_proxies) und setzt sie selbst neu — genau die Voraussetzung fuer
+# TRUST_PROXY=1 in der App (siehe README, Abschnitt Sicherheit).
+
+{$DOMAIN} {
+	reverse_proxy ticket-system:3000
+
+	encode zstd gzip
+
+	log {
+		output stdout
+		format json
+	}
+}

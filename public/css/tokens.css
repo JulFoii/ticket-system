@@ -1,0 +1,65 @@
+/* Application aliases for the Bootstrap 6 theme. Domain components (ticket
+   timeline, composer, reports) share Bootstrap's colors, type and radii. */
+:root {
+  color-scheme: dark;
+  --bg: var(--bs-bg-body);
+  --bg-elevated: var(--bs-bg-1);
+  --surface: var(--bs-bg-1);
+  --surface-hover: var(--bs-bg-2);
+  --surface-sunken: var(--bs-bg-body);
+  --border: var(--bs-border-color);
+  --border-strong: var(--bs-border-emphasized);
+  --text: var(--bs-fg-body);
+  --text-muted: var(--bs-fg-2);
+  --text-subtle: var(--bs-fg-3);
+  --accent: var(--bs-primary-fg);
+  --accent-hover: var(--bs-primary-fg-emphasis);
+  --accent-subtle: var(--bs-primary-bg-subtle);
+  --success: var(--bs-success-fg);
+  --success-subtle: var(--bs-success-bg-subtle);
+  --danger: var(--bs-danger-fg);
+  --danger-hover: var(--bs-danger-fg-emphasis);
+  --danger-subtle: var(--bs-danger-bg-subtle);
+  --warning: var(--bs-warning-fg);
+  --warning-subtle: var(--bs-warning-bg-subtle);
+  --btn-primary-bg: var(--bs-primary-bg);
+  --btn-primary-bg-hover: var(--bs-primary-fg-emphasis);
+  --btn-primary-fg: var(--bs-primary-contrast);
+  --grain-opacity: 0.025;
+  --glow-1: color-mix(in oklab, var(--accent) 9%, transparent);
+  --glow-2: color-mix(in oklab, var(--bs-info-fg) 7%, transparent);
+  --font-sans: var(--bs-body-font-family);
+  --font-mono: var(--bs-font-mono);
+  --text-xs: var(--bs-font-size-xs);
+  --text-sm: var(--bs-font-size-sm);
+  --text-base: var(--bs-font-size-md);
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --tracking-tight: -0.011em;
+  --tracking-tighter: -0.021em;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --radius-sm: var(--bs-radius-3);
+  --radius: var(--bs-radius-5);
+  --radius-lg: var(--bs-radius-7);
+  --radius-full: 999px;
+  --shadow-color: light-dark(oklch(21% 0.005 285 / 8%), oklch(0% 0 0 / 45%));
+  --shadow-sm: 0 1px 2px var(--shadow-color);
+  --shadow: 0 4px 12px var(--shadow-color);
+  --shadow-lg: 0 16px 48px var(--shadow-color), 0 2px 8px var(--shadow-color);
+  --ring: 0 0 0 3px var(--accent-subtle), 0 0 0 1px var(--accent);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --container: 76rem;
+  --nav-height: 3.5rem;
+}
+:root[data-bs-theme="light"] { color-scheme: light; }
+:root[data-bs-theme="dark"] { color-scheme: dark; }

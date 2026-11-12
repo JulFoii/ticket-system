@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <%- include('../partials/head', { title: 'Swagger API-Dokumentation' }) %>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/api/docs/assets/swagger-ui.css">
+  <link rel="stylesheet" href="<%= asset('/css/api.css') %>">
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<%- include('../partials/navbar', { page: 'admin-integrations', loggedIn: true }) %>
+<main class="main" id="main">
+  <div class="container stack">
+    <header class="page-header page-header--actions">
+      <div><p class="eyebrow">REST API v1</p><h1 class="page-header__title">Swagger API-Dokumentation</h1><p class="page-header__lead">Trage unter „Authorize“ deinen vollständigen <code>tsapi_…</code>-Token ein. Swagger ergänzt <code>Bearer</code> automatisch.</p></div>
+      <a class="btn btn-outline theme-secondary page-header__action" href="/admin/integrations">Zurück zu den Integrationen</a>
+    </header>
+    <section class="swagger-shell" aria-label="Interaktive API-Dokumentation"><div id="swagger-ui"></div></section>
+  </div>
+</main>
+<%- include('../partials/footer') %>
+<script src="/api/docs/assets/swagger-ui-bundle.js"></script>
+<script src="/api/docs/assets/swagger-ui-standalone-preset.js"></script>
+<script src="<%= asset('/js/swagger-init.js') %>"></script>
+</body>
+</html>

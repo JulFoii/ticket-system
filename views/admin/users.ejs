@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <%- include('../partials/head', { title: 'Support-Team' }) %>
+  <meta name="robots" content="noindex">
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<%- include('../partials/navbar', { page: 'admin-users', loggedIn: true }) %>
+<main class="main" id="main">
+  <div class="container container--narrow">
+    <header class="page-header">
+      <p class="eyebrow">Administration</p>
+      <h1 class="page-header__title">Support-Team</h1>
+      <p class="page-header__lead">Verwalte eigene Zugänge, Rollen und Anzeigenamen für die Ticketbearbeitung.</p>
+    </header>
+
+    <% if (error) { %><div class="mb-4"><%- include('../partials/alert', { variant: 'danger', text: error }) %></div><% } %>
+    <% if (done) { %><div class="mb-4"><%- include('../partials/alert', { variant: 'success', text: 'Änderung gespeichert.' }) %></div><% } %>
+
+    <section class="card mb-4">
+      <div class="card-header"><h2 class="card-title">Teammitglieder</h2></div>
+      <div class="card-body stack">
+        <% users.forEach(user => { %>
+          <div class="card card--muted">
+            <div class="card-body stack stack--sm">
+              <div class="app-row row--between">
+                <strong><%= user.displayName %></strong>
+                <span class="badge <%= user.disabled ? 'badge--danger' : user.role === 'admin' ? 'badge--ok' : '' %>"><%= user.disabled ? 'Deaktiviert' : user.role === 'admin' ? 'Administrator' : 'Agent' %></span>
+              </div>
+              <span class="hint mono"><%= user.username %><%= user.isOwner ? ' · Owner' : '' %></span>
+              <% if (!user.isOwner) { %>
+                <form class="stack stack--sm" method="POST" action="/admin/users/<%= user.id %>">
+                  <div class="grid-2">
+                    <div class="field"><label class="form-label">Benutzername</label><input class="form-control form-control-sm" name="username" value="<%= user.username %>" required maxlength="64"></div>
+                    <div class="field"><label class="form-label">Anzeigename</label><input class="form-control form-control-sm" name="displayName" value="<%= user.displayName %>" required maxlength="80"></div>
+                    <div class="field"><label class="form-label">Rolle</label><select class="form-control form-control-sm" name="role"><option value="agent" <%= user.role === 'agent' ? 'selected' : '' %>>Agent</option><option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Administrator</option></select></div>
+                    <label class="check-line"><input type="checkbox" name="disabled" value="1" <%= user.disabled ? 'checked' : '' %>><span>Zugang deaktivieren</span></label>
+                  </div>
+                  <button class="btn btn-outline theme-secondary btn-sm" type="submit">Speichern</button>
+                </form>
+                <form class="app-row" method="POST" action="/admin/users/<%= user.id %>/password">
+                  <input class="form-control form-control-sm" type="password" name="password" minlength="8" required placeholder="Neues Passwort" autocomplete="new-password">
+                  <button class="btn btn-outline theme-secondary btn-sm" type="submit">Passwort setzen</button>
+                </form>
+                <form method="POST" action="/admin/users/<%= user.id %>/delete" data-confirm="Der Zugang wird gelöscht; bestehende Ticket-Zuweisungen werden aufgehoben." data-confirm-title="Support-Zugang löschen?" data-confirm-ok="Löschen">
+                  <button class="btn btn-text theme-danger btn-sm" type="submit">Zugang löschen</button>
+                </form>
+              <% } else { %>
+                <p class="hint">Passwort, TOTP und Passkeys dieses Kontos werden weiterhin im Konto-Bereich verwaltet.</p>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2 class="card-title">Teammitglied hinzufügen</h2></div>
+      <form class="card-body stack" method="POST" action="/admin/users">
+        <div class="grid-2">
+          <div class="field"><label class="form-label" for="new-username">Benutzername</label><input class="form-control" id="new-username" name="username" value="<%= values.username || '' %>" required maxlength="64" autocomplete="off"></div>
+          <div class="field"><label class="form-label" for="new-display">Anzeigename</label><input class="form-control" id="new-display" name="displayName" value="<%= values.displayName || '' %>" required maxlength="80"></div>
+          <div class="field"><label class="form-label" for="new-role">Rolle</label><select class="form-control" id="new-role" name="role"><option value="agent">Agent</option><option value="admin" <%= values.role === 'admin' ? 'selected' : '' %>>Administrator</option></select></div>
+          <div class="field"><label class="form-label" for="new-password">Startpasswort</label><input class="form-control" id="new-password" type="password" name="password" minlength="8" required autocomplete="new-password"></div>
+        </div>
+        <button class="btn btn-solid theme-primary" type="submit">Zugang anlegen</button>
+      </form>
+    </section>
+  </div>
+</main>
+<%- include('../partials/footer') %>
+<script src="<%= asset('/js/theme.js') %>" defer></script>
+<script src="<%= asset('/js/idle-timer.js') %>" defer></script>
+<script src="<%= asset('/js/confirm.js') %>" defer></script>
+</body>
+</html>

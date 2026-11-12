@@ -1,0 +1,10 @@
+services:
+  ticket-system:
+    networks:
+      - default
+      - mailcow
+
+networks:
+  mailcow:
+    external: true
+    name: mailcowdockerized_mailcow-network

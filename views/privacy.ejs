@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <%- include('partials/head', { title: 'Datenschutzerklärung', description: 'Datenschutzerklärung von ' + appName + '.' }) %>
+</head>
+<body data-live-page>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<%- include('partials/navbar', { page: 'privacy', loggedIn }) %>
+
+<main class="main" id="main">
+  <div class="container container--narrow">
+    <header class="page-header">
+      <p class="eyebrow">Rechtliches</p>
+      <h1 class="page-header__title">Datenschutzerklärung</h1>
+      <p class="page-header__meta">
+        <span>Transparenz über den Umgang mit deinen Daten</span>
+      </p>
+    </header>
+
+    <div class="prose">
+      <nav class="toc" aria-label="Inhalt">
+        <a href="#verantwortlicher">Verantwortlicher</a>
+        <a href="#daten">Erhobene Daten</a>
+        <a href="#zweck">Zweck</a>
+        <a href="#rechtsgrundlage">Rechtsgrundlage</a>
+        <a href="#speicherdauer">Speicherdauer</a>
+        <a href="#rechte">Deine Rechte</a>
+        <a href="#kontakt">Kontakt</a>
+      </nav>
+
+      <h2 id="verantwortlicher">1. Verantwortlicher</h2>
+      <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
+      <address>
+        <strong>Julian Foitzik</strong><br>
+        Luise-RInser-Weg 23<br>
+        45772 Marl, Deutschland<br>
+        E-Mail: <a href="mailto:jfoitzik@gmx.net">jfoitzik@gmx.net</a>
+      </address>
+
+      <h2 id="daten">2. Erhebung und Speicherung personenbezogener Daten</h2>
+      <p>Bei der Nutzung dieser Website werden folgende Daten verarbeitet:</p>
+      <ul>
+        <li><strong>Logfiles:</strong> IP-Adresse, Browserkennung (User-Agent, daraus Browsertyp und Betriebssystem), aufgerufene Seite ohne Parameter, Zeitpunkt und Ergebnis des Zugriffs</li>
+        <li><strong>Wissensdatenbank:</strong> Suchbegriff und Trefferzahl, anonyme Hilfreich-Bewertung sowie ein freiwilliger Verbesserungskommentar. Dabei werden keine IP-Adresse oder Browserkennung mit der Bewertung gespeichert.</li>
+        <li><strong>Cookies:</strong> ein technisch notwendiges Session-Cookie für die Anmeldung (Admin-Bereich bzw. Support-Konto)</li>
+        <li><strong>Support-Konto:</strong> bei der Registrierung im Support-Portal Name, E-Mail-Adresse und ein Passwort (nur als gesalzener Hash gespeichert), Zeitpunkte von Registrierung, Bestätigung und letzter Anmeldung sowie deine Einstellungen zu E-Mail-Benachrichtigungen</li>
+        <li><strong>Tickets:</strong> Betreff, Nachrichten, Kategorie, Dringlichkeit, angehängte Dateien und eine optionale Zufriedenheitsbewertung — zur Bearbeitung deiner Anfrage durch den Betreiber. Antwortest du per E-Mail auf eine Benachrichtigung, wird der Inhalt dieser E-Mail (ohne zitierten Verlauf) samt Anhängen ins Ticket übernommen</li>
+        <li><strong>E-Mails:</strong> Bestätigungs-, Sicherheits- und Ticket-Benachrichtigungen werden über den vom Betreiber konfigurierten Mailserver verschickt; verschickte Mails bleiben höchstens 30 Tage in der Versand-Warteschlange gespeichert</li>
+      </ul>
+      <p>Es werden keine Analyse-, Tracking- oder Marketing-Dienste eingesetzt. Alle Schriftarten, Skripte und Stylesheets werden vom eigenen Server ausgeliefert — es findet keine Verbindung zu externen Content-Delivery-Netzwerken statt.</p>
+
+      <h2 id="zweck">3. Zweck der Datenverarbeitung</h2>
+      <ul>
+        <li>Bereitstellung und ordnungsgemäße Funktion der Website</li>
+        <li>Sicherstellung der Systemsicherheit</li>
+        <li>Admin-Authentifizierung</li>
+        <li>Bearbeitung von Support-Anfragen (Tickets) und Bereitstellung der Wissensdatenbank</li>
+      </ul>
+
+      <h2 id="rechtsgrundlage">4. Rechtsgrundlage</h2>
+      <p>Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse) zur ordnungsgemäßen Bereitstellung der Website-Funktionalitäten.</p>
+
+      <h2 id="speicherdauer">5. Speicherdauer</h2>
+      <%# Die Fristen kommen aus der laufenden Konfiguration (lib/retention.js), damit der Text nie etwas anderes verspricht, als die App tatsächlich tut. %>
+      <p data-live-region="retention"><% const logDays = eventRetention(); %><% if (logDays.min === null) { %>Logfiles werden nicht automatisch gelöscht.<% } else if (logDays.max === null) { %>Logfiles werden je nach Art des Eintrags frühestens nach <%= logDays.min %> Tagen automatisch gelöscht; einzelne Arten von Einträgen werden ohne feste Frist aufbewahrt.<% } else if (logDays.min === logDays.max) { %>Logfiles werden nach <%= logDays.min %> Tagen automatisch gelöscht.<% } else { %>Logfiles werden je nach Art des Eintrags nach <%= logDays.min %> bis <%= logDays.max %> Tagen automatisch gelöscht (gewöhnliche Zugriffe nach <%= logDays.info %> Tagen, Fehlermeldungen länger zur Fehleranalyse).<% } %><% if (logDays.archiveDays !== null) { %> Vor dem Löschen archivierte Logfiles werden nach <%= logDays.archiveDays %> Tagen gelöscht.<% } %><% if (retentionPolicy.auditLogDays > 0) { %> Das Sicherheitsprotokoll (Anmeldungen, Ticket- und Kontoänderungen, jeweils mit IP-Adresse) wird nach <%= retentionPolicy.auditLogDays %> Tagen automatisch gelöscht.<% } %> Session-Cookies werden nach Beendigung der Browser-Sitzung gelöscht.<% if (retentionPolicy.unverifiedAccountDays > 0) { %> Support-Konten, deren E-Mail-Adresse nicht innerhalb von <%= retentionPolicy.unverifiedAccountDays %> Tagen bestätigt wurde, werden automatisch gelöscht.<% } %><% if (retentionPolicy.closedTicketDays > 0) { %> Geschlossene Tickets werden <%= retentionPolicy.closedTicketDays %> Tage nach ihrer Schließung samt Nachrichten und Anhängen automatisch gelöscht.<% } %> Support-Konten und Tickets bleiben<% if (retentionPolicy.closedTicketDays > 0) { %> ansonsten<% } %> gespeichert, bis du dein Konto löschst (jederzeit selbst möglich unter „Konto“ → „Daten &amp; Löschung“, inklusive aller Tickets und Anhänge) oder der Betreiber sie löscht. Dort kannst du auch jederzeit einen vollständigen Datenexport herunterladen.</p>
+
+      <h2 id="rechte">6. Deine Rechte</h2>
+      <p>Du hast das Recht auf:</p>
+      <ul>
+        <li>Auskunft über deine gespeicherten Daten (Art. 15 DSGVO)</li>
+        <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO)</li>
+        <li>Löschung deiner Daten (Art. 17 DSGVO)</li>
+        <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+        <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+        <li>Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)</li>
+      </ul>
+
+      <h2 id="kontakt">7. Kontakt</h2>
+      <p>Bei Fragen zum Datenschutz erreichst du uns unter <a href="mailto:jfoitzik@gmx.net">jfoitzik@gmx.net</a>.</p>
+    </div>
+
+    <p class="mt-4">
+      <a class="btn btn-outline theme-secondary" href="/">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H5M11 6l-6 6 6 6"/>
+        </svg>
+        Zurück zum Support-Portal
+      </a>
+    </p>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script src="<%= asset('/js/live-regions.js') %>" defer></script>
+<script src="<%= asset('/js/theme.js') %>" defer></script>
+<script src="<%= asset('/js/idle-timer.js') %>" defer></script>
+</body>
+</html>

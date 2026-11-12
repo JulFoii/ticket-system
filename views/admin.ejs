@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <%- include('partials/head', { title: 'Dashboard' }) %>
+</head>
+<%# data-live-url: die Seite wird auch aus den Fehlerpfaden der POST-Formulare
+    gerendert (/admin-password …) — der Poll muss trotzdem GET /admin treffen. %>
+<body data-live-page data-live-url="/admin">
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<%- include('partials/navbar', { page: 'admin', loggedIn: true }) %>
+
+<main class="main" id="main">
+  <div class="container">
+    <header class="page-header">
+      <p class="eyebrow">Verwaltung</p>
+      <h1 class="page-header__title">Übersicht</h1>
+      <p class="page-header__lead">Offene Vorgänge, Systemstatus und die wichtigsten Bereiche auf einen Blick.</p>
+      <p class="page-header__meta">
+        <span><%= customerCount %> <%= customerCount === 1 ? 'Kundenkonto' : 'Kundenkonten' %></span>
+        <span>E-Mail-Versand: <%= mailEnabled ? 'aktiv' : 'aus' %></span>
+        <span>E-Mail-Eingang: <%= inboundEnabled ? 'aktiv' : 'aus' %></span>
+      </p>
+    </header>
+
+    <nav class="tabs" aria-label="Verwaltungsbereiche" data-tabs>
+      <a class="tab" href="#tab-tickets" data-tab-link="tickets" aria-current="page">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Tickets
+        <span data-live-region="ticket-tab-badge"><%- include('partials/ticket-tab-badge', { unread: ticketStats.views.unread }) %></span>
+      </a>
+      <% if (currentSupportUser?.isOwner) { %><a class="tab" href="#tab-security" data-tab-link="security">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Sicherheit
+      </a><% } %>
+      <a class="tab" href="#tab-backups" data-tab-link="backups">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <ellipse cx="12" cy="5" rx="8" ry="3"/>
+          <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
+          <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>
+        </svg>
+        Backups
+      </a>
+      <% if (currentSupportUser?.isOwner) { %><a class="tab" href="#tab-account" data-tab-link="account">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+        </svg>
+        Konto
+      </a><% } %>
+    </nav>
+
+    <div class="stack" id="tab-tickets" data-tab-panel="tickets">
+      <section class="card reveal" aria-labelledby="tickets-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="tickets-heading">Support-Tickets</h2>
+          <a class="btn btn-solid theme-primary btn-sm spacer" href="/admin/tickets">Zum Posteingang</a>
+        </div>
+        <div class="card-body stack">
+          <div class="stack" data-live-region="ticket-overview">
+            <%- include('partials/admin-ticket-overview', { ticketStats, recentTickets, customerCount }) %>
+          </div>
+          <nav class="quick-links" aria-label="Schnellzugriffe">
+            <a class="quick-link" href="/admin/tickets/new"><span class="quick-link__icon"><%- include('partials/icon', { name: 'plus', size: 16 }) %></span><span><strong>Neues Ticket</strong><small>Für einen Kunden anlegen</small></span></a>
+            <a class="quick-link" href="/admin/customers"><span class="quick-link__icon"><%- include('partials/icon', { name: 'users', size: 16 }) %></span><span><strong>Kunden</strong><small>Konten und Vorgänge</small></span></a>
+            <a class="quick-link" href="/admin/kb"><span class="quick-link__icon"><%- include('partials/icon', { name: 'book', size: 16 }) %></span><span><strong>Wissensdatenbank</strong><small>Hilfeartikel verwalten</small></span></a>
+            <a class="quick-link" href="/admin/reports"><span class="quick-link__icon"><%- include('partials/icon', { name: 'chart', size: 16 }) %></span><span><strong>Berichte</strong><small>Leistung und Qualität</small></span></a>
+            <a class="quick-link" href="/admin/ticket-settings"><span class="quick-link__icon"><%- include('partials/icon', { name: 'settings', size: 16 }) %></span><span><strong>Einstellungen</strong><small>E-Mail, SLA und Automatik</small></span></a>
+            <a class="quick-link" href="/admin/users"><span class="quick-link__icon"><%- include('partials/icon', { name: 'users', size: 16 }) %></span><span><strong>Support-Team</strong><small>Zugänge und Rollen</small></span></a>
+          </nav>
+        </div>
+      </section>
+    </div>
+
+    <% if (currentSupportUser?.isOwner) { %><div class="stack" id="tab-security" data-tab-panel="security">
+      <!-- Passkeys -->
+      <section class="card reveal" aria-labelledby="passkeys-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="passkeys-heading">Passkeys</h2>
+        </div>
+        <div class="card-body">
+          <ul class="stack" id="passkeyList">
+            <%- include('partials/passkey-rows', { passkeys }) %>
+            <% if (passkeys.length === 0) { %>
+              <li class="empty" data-passkey-empty>
+                <p class="empty__title">Keine Passkeys</p>
+                <p class="empty__text">Füge einen Passkey hinzu, um dich künftig ohne Passwort anzumelden.</p>
+              </li>
+            <% } %>
+          </ul>
+          <div class="app-row mt-4">
+            <button type="button" class="btn btn-outline theme-secondary" id="passkeyAddButton" hidden>Passkey hinzufügen</button>
+            <span class="hint" id="passkeyUnsupportedHint">Dieser Browser unterstützt keine Passkeys.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Zwei-Faktor (TOTP) -->
+      <section class="card reveal" aria-labelledby="totp-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="totp-heading">Zwei-Faktor-Authentifizierung</h2>
+          <span class="badge <%= totpEnabled ? 'badge--ok' : '' %>" id="totpStatusBadge"><%= totpEnabled ? 'Aktiv' : 'Inaktiv' %></span>
+        </div>
+        <div class="card-body">
+          <p class="hint mb-4">
+            Zusätzlicher Code aus einer Authenticator-App beim Passwort-Login.
+            Gilt nicht für die Anmeldung per Passkey — die zählt schon als
+            gleichwertig starker Faktor.
+          </p>
+          <div class="app-row">
+            <button type="button" class="btn btn-outline theme-secondary" id="totpSetupButton" <%= totpEnabled ? 'hidden' : '' %>>TOTP einrichten</button>
+            <button type="button" class="btn btn-text theme-danger" id="totpDisableButton" <%= totpEnabled ? '' : 'hidden' %>>Deaktivieren</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Audit-Log -->
+      <section class="card reveal" aria-labelledby="audit-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="audit-heading">Audit-Log</h2>
+          <a class="btn btn-text theme-secondary btn-sm" href="/admin/logs?audit=1">Alle ansehen</a>
+        </div>
+        <div class="card-body" data-live-region="audit">
+          <% if (auditEntries.length === 0) { %>
+            <p class="hint">Noch keine Einträge.</p>
+          <% } else { %>
+            <ul class="stack">
+              <% auditEntries.slice(0, 8).forEach(entry => { %>
+                <li class="app-row row--between" data-live-key="audit-<%= entry.id %>">
+                  <span><span class="badge badge--mono"><%= entry.event %></span> <span class="hint"><%= entry.ip || '' %></span></span>
+                  <time class="hint" datetime="<%= new Date(entry.ts).toISOString() %>"><%= formatDate(entry.ts) %> <%= formatTime(entry.ts) %></time>
+                </li>
+              <% }); %>
+            </ul>
+          <% } %>
+        </div>
+      </section>
+    </div><% } %>
+
+    <div class="stack" id="tab-backups" data-tab-panel="backups">
+      <!-- Sicherungen -->
+      <section class="card reveal" aria-labelledby="backups-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="backups-heading">Datenbank-Sicherungen</h2>
+        </div>
+        <div class="card-body">
+          <p class="hint mb-4">
+            Sichert die SQLite-Datenbank (Tickets, Kundenkonten, Zugangsdaten,
+            Einstellungen …). Ticket-Anhänge liegen als Dateien unter
+            <code class="mono">DATA_DIR/ticket-attachments/</code> und gehören
+            zur regulären Volume-Sicherung.
+          </p>
+          <ul class="stack" id="backupList" data-live-region="backups">
+            <%- include('partials/backup-list', { backups }) %>
+          </ul>
+          <form class="app-row mt-4" id="backupCreateForm" method="POST" action="/admin/backups">
+            <button type="submit" class="btn btn-outline theme-secondary" id="backupCreateButton">Jetzt sichern</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Zeitplan -->
+      <section class="card reveal" aria-labelledby="backup-settings-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="backup-settings-heading">Zeitplan</h2>
+        </div>
+        <div class="card-body">
+          <% if (backupSettingsError) { %>
+            <div class="alert theme-danger mb-4" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4M12 16h.01"/>
+              </svg>
+              <span><%= backupSettingsError %></span>
+            </div>
+          <% } %>
+          <form class="stack" id="backupSettingsForm" method="POST" action="/admin/backup-settings">
+            <div class="stack" data-live-region="backup-settings">
+              <%- include('partials/backup-settings-fields', { backupSettings }) %>
+            </div>
+            <div class="app-row">
+              <button type="submit" class="btn btn-outline theme-secondary">Speichern</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <% if (currentSupportUser?.isOwner) { %><div class="stack" id="tab-account" data-tab-panel="account">
+      <!-- Admin-Benutzername -->
+      <section class="card reveal" aria-labelledby="username-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="username-heading">Admin-Benutzername</h2>
+        </div>
+        <div class="card-body">
+          <% if (usernameError) { %>
+            <div class="alert theme-danger mb-4" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4M12 16h.01"/>
+              </svg>
+              <span><%= usernameError %></span>
+            </div>
+          <% } %>
+
+          <form class="stack" id="usernameForm" method="POST" action="/admin-username">
+            <div class="field">
+              <label class="form-label" for="usernameInput">Benutzername</label>
+              <input
+                class="form-control"
+                type="text"
+                id="usernameInput"
+                name="username"
+                value="<%= currentUsername %>"
+                maxlength="64"
+                required>
+            </div>
+
+            <div class="app-row">
+              <button type="submit" class="btn btn-outline theme-secondary">Benutzername ändern</button>
+              <span class="hint">Gilt sofort für neue Anmeldungen; bestehende Sitzungen bleiben angemeldet.</span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Admin-Passwort -->
+      <section class="card reveal" aria-labelledby="password-heading">
+        <div class="card-header">
+          <h2 class="card-title" id="password-heading">Admin-Passwort</h2>
+        </div>
+        <div class="card-body">
+          <% if (passwordError) { %>
+            <div class="alert theme-danger mb-4" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4M12 16h.01"/>
+              </svg>
+              <span><%= passwordError %></span>
+            </div>
+          <% } %>
+
+          <form class="stack" id="passwordForm" method="POST" action="/admin-password">
+            <div class="field">
+              <label class="form-label" for="newPassword">Neues Passwort</label>
+              <div class="password">
+                <input
+                  class="form-control"
+                  type="password"
+                  id="newPassword"
+                  name="password"
+                  autocomplete="new-password"
+                  minlength="8"
+                  required>
+                <button
+                  type="button"
+                  class="password__toggle"
+                  data-password-toggle="newPassword"
+                  aria-label="Passwort anzeigen">
+                  <svg data-password-icon="show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg data-password-icon="hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                    <path d="M4 4l16 16"/>
+                    <path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.4 3.3M6.5 7.3A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 3.9-.8"/>
+                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="form-label" for="confirmPassword">Passwort bestätigen</label>
+              <div class="password">
+                <input
+                  class="form-control"
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  autocomplete="new-password"
+                  minlength="8"
+                  required>
+                <button
+                  type="button"
+                  class="password__toggle"
+                  data-password-toggle="confirmPassword"
+                  aria-label="Passwort anzeigen">
+                  <svg data-password-icon="show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg data-password-icon="hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                    <path d="M4 4l16 16"/>
+                    <path d="M9.9 5.2A9.6 9.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.4 3.3M6.5 7.3A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 3.9-.8"/>
+                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="app-row">
+              <button type="submit" class="btn btn-outline theme-secondary">Passwort ändern</button>
+              <span class="hint">Gilt sofort für neue Anmeldungen; bestehende Sitzungen bleiben angemeldet.</span>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div><% } %>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<dialog class="dialog" id="passkeyDeleteDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title">Passkey entfernen?</h2>
+      <p class="dialog__text">
+        Mit diesem Passkey ist danach keine Anmeldung mehr möglich.
+      </p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-outline theme-secondary" formnovalidate>Abbrechen</button>
+      <button type="button" class="btn btn-solid theme-danger" id="passkeyDeleteConfirm">Entfernen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="usernameResultDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title" data-result-title>Benutzername geändert</h2>
+      <p class="dialog__text" data-result-text></p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-solid theme-primary">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="passwordResultDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title" data-result-title>Passwort geändert</h2>
+      <p class="dialog__text" data-result-text></p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-solid theme-primary">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="totpSetupDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title">TOTP einrichten</h2>
+      <p class="dialog__text">
+        In einer Authenticator-App (z. B. Aegis, Google Authenticator) als
+        Setup-Schlüssel eintragen — es gibt bewusst keinen QR-Code, jede App
+        akzeptiert die manuelle Eingabe.
+      </p>
+      <div class="field">
+        <label class="form-label">Setup-Schlüssel</label>
+        <div class="app-row">
+          <code class="mono" id="totpSecretDisplay"></code>
+          <button type="button" class="btn btn-text theme-secondary btn-sm" id="totpSecretCopy" data-copy-label="Schlüssel kopiert">Kopieren</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="form-label" for="totpToken">Code aus der App</label>
+        <input class="form-control" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="totpToken" autocomplete="one-time-code">
+      </div>
+      <p class="hint" id="totpSetupError"></p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-outline theme-secondary" formnovalidate>Abbrechen</button>
+      <button type="button" class="btn btn-solid theme-primary" id="totpSetupConfirm">Bestätigen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="totpRecoveryDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title">Wiederherstellungscodes</h2>
+      <p class="dialog__text">
+        Jeder Code funktioniert einmal, falls das Gerät mit der
+        Authenticator-App verloren geht. Jetzt sichern — sie werden nicht
+        erneut angezeigt.
+      </p>
+      <ul class="stack mono" id="totpRecoveryList"></ul>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-solid theme-primary">Codes gesichert</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="totpDisableDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title">Zwei-Faktor-Authentifizierung deaktivieren?</h2>
+      <p class="dialog__text">
+        Die Anmeldung ist danach wieder nur mit Passwort (bzw. Passkey) möglich.
+      </p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-outline theme-secondary" formnovalidate>Abbrechen</button>
+      <button type="button" class="btn btn-solid theme-danger" id="totpDisableConfirm">Deaktivieren</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="backupDeleteDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title">Sicherung löschen?</h2>
+      <p class="dialog__text">
+        <strong class="mono" id="backupDeleteFilename"></strong> wird endgültig entfernt.
+      </p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-outline theme-secondary" formnovalidate>Abbrechen</button>
+      <button type="button" class="btn btn-solid theme-danger" id="backupDeleteConfirm">Löschen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog" id="backupRestoreDialog">
+  <form method="dialog">
+    <div class="dialog__body">
+      <h2 class="dialog__title">Sicherung wiederherstellen?</h2>
+      <p class="dialog__text">
+        Ersetzt die komplette aktuelle Datenbank (Tickets, Kundenkonten,
+        Zugangsdaten, Sitzungen …) durch <strong class="mono" id="backupRestoreFilename"></strong>.
+        Alle aktuellen Sitzungen — auch diese — werden ungültig, der Server
+        startet danach neu. Von der aktuellen Datenbank wird vorher
+        automatisch eine Sicherheitskopie angelegt.
+      </p>
+      <div class="field">
+        <label class="form-label" for="backupRestoreConfirmInput">Zum Bestätigen den Dateinamen eingeben</label>
+        <input class="form-control mono" type="text" id="backupRestoreConfirmInput" autocomplete="off">
+      </div>
+      <p class="hint" id="backupRestoreError"></p>
+    </div>
+    <div class="dialog__footer">
+      <button type="submit" class="btn btn-outline theme-secondary" formnovalidate>Abbrechen</button>
+      <button type="button" class="btn btn-solid theme-danger" id="backupRestoreConfirm" disabled>Wiederherstellen</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="<%= asset('/js/live-regions.js') %>" defer></script>
+<script src="<%= asset('/js/theme.js') %>" defer></script>
+<script src="<%= asset('/js/idle-timer.js') %>" defer></script>
+<script src="<%= asset('/js/toast.js') %>" defer></script>
+<script src="<%= asset('/js/admin-tabs.js') %>" defer></script>
+<script src="<%= asset('/js/copy.js') %>" defer></script>
+<script src="<%= asset('/js/webauthn.js') %>" defer></script>
+<script src="<%= asset('/js/totp.js') %>" defer></script>
+<script src="<%= asset('/js/password-toggle.js') %>" defer></script>
+<script src="<%= asset('/js/account-forms.js') %>" defer></script>
+<script src="<%= asset('/js/backups.js') %>" defer></script>
+</body>
+</html>

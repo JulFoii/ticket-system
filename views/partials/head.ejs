@@ -1,0 +1,17 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="app-time-zone" content="<%= appTimeZone %>">
+<title><%= title %> · <%= appName %></title>
+<meta name="description" content="<%= typeof description !== 'undefined' ? description : appName + ' — Support-Portal mit Tickets und Wissensdatenbank.' %>">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="<%= asset('/vendor/bootstrap/bootstrap.min.css') %>">
+<link rel="stylesheet" href="<%= asset('/css/tokens.css') %>">
+<link rel="stylesheet" href="<%= asset('/css/main.css') %>">
+<link rel="stylesheet" href="<%= asset('/css/tickets.css') %>">
+<% (typeof stylesheets !== 'undefined' ? stylesheets : []).forEach(sheet => { %>
+<link rel="stylesheet" href="<%= asset(sheet) %>">
+<% }); %>
+<!-- Muss blockierend laufen: setzt das Theme vor dem ersten Paint -->
+<script src="<%= asset('/js/theme-init.js') %>"></script>
+<script type="module" src="<%= asset('/vendor/bootstrap/bootstrap.bundle.min.js') %>"></script>

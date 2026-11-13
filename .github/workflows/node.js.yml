@@ -81,7 +81,7 @@ jobs:
           output: ticket-system.sbom.json
           exit-code: "0"
       - name: Software-Stückliste archivieren
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ticket-system-sbom
           path: ticket-system.sbom.json

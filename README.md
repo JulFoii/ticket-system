@@ -62,7 +62,7 @@ Kunden registrieren sich im Portal, eröffnen Tickets (im Browser oder per E-Mai
 
 | Bereich | Technologie |
 |---|---|
-| Laufzeit | Node.js ≥ 22.5 (empfohlen 24) |
+| Laufzeit | Node.js ≥ 22.5 (Produktionsimage: 26) |
 | Web-Framework | Express 5 |
 | Templates | EJS (serverseitiges Rendering) |
 | Datenbank | SQLite über das eingebaute `node:sqlite` (keine externe DB nötig) |
@@ -76,7 +76,7 @@ Kunden registrieren sich im Portal, eröffnen Tickets (im Browser oder per E-Mai
 
 ## Voraussetzungen
 
-- **Node.js 22.5 oder neuer** (getestet mit 22 und 24) und npm
+- **Node.js 22.5 oder neuer** (getestet mit 22, 24 und 26) und npm
 - **Browser:** Chrome/Edge 130+, Firefox 132+ oder Safari 18+ (Bootstrap 6).
 - Optional: **Docker** und **Docker Compose** für den Produktivbetrieb
 - Optional: SMTP-Zugang (Mailversand) und IMAP-Postfach (Antworten per Mail)
@@ -191,7 +191,7 @@ npm run lint           # ESLint: statische Analyse aller JavaScript-Dateien
 npm run check:syntax   # schneller Syntax-Check mit node --check
 ```
 
-Die Integrationstests starten echte Instanzen auf zufälligen Ports mit temporären Verzeichnissen und einem Fake-Mailtransport — es wird weder ein Mailserver noch eine externe Datenbank benötigt. Die Coverage-Grenzen liegen bei 90 % Lines, 75 % Branches und 85 % Functions. Die GitHub-Actions-Pipeline (`.github/workflows/node.js.yml`) führt Syntaxprüfung, ESLint und Coverage-Tests auf Node 22 und 24 aus, baut das Docker-Image, macht einen Smoke-Test, scannt es mit Trivy und archiviert eine CycloneDX-SBOM.
+Die Integrationstests starten echte Instanzen auf zufälligen Ports mit temporären Verzeichnissen und einem Fake-Mailtransport — es wird weder ein Mailserver noch eine externe Datenbank benötigt. Die Coverage-Grenzen liegen bei 90 % Lines, 75 % Branches und 85 % Functions. Die GitHub-Actions-Pipeline (`.github/workflows/node.js.yml`) führt Syntaxprüfung, ESLint und Coverage-Tests auf Node 22, 24 und 26 aus, baut das Docker-Image, macht einen Smoke-Test, scannt es mit Trivy und archiviert eine CycloneDX-SBOM.
 
 Ein nicht-destruktiver Lasttest gegen eine laufende Instanz ist ebenfalls enthalten:
 

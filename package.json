@@ -33,7 +33,7 @@
     "swagger-ui-dist": "^5.34.1"
   },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=22.13.0"
   },
   "devDependencies": {
     "eslint": "^10.14.0"

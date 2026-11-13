@@ -18,9 +18,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 22 = untere Grenze aus package.json "engines" (LTS), 24 = was das
-        # Docker-Image ausliefert
-        node-version: [22.x, 24.x]
+        # 22 = untere Grenze aus package.json "engines"; 24 = vorherige LTS;
+        # 26 = Laufzeit des Produktionsimages
+        node-version: [22.x, 24.x, 26.x]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v6

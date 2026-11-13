@@ -3,7 +3,7 @@
 # ExperimentalWarning laeuft (auf v22/23 noch flag- bzw. warnungspflichtig).
 # Tag plus OCI-Index-Digest: Builds desselben Commits verwenden bytegenau
 # dasselbe Multi-Arch-Basisimage. Dependabot aktualisiert beides per PR.
-FROM node:24.22-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+FROM node:26.12-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797
 
 WORKDIR /app
 

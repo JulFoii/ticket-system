@@ -1,4 +1,4 @@
-# >=22.5 fuer node:sqlite (siehe lib/db.js) — v26 wird im Produktionsimage
+# >=22.13 fuer node:sqlite (siehe lib/db.js) — v26 wird im Produktionsimage
 # ausgeliefert. Die eingebaute SQLite-API laeuft damit ohne
 # --experimental-sqlite-Flag und ohne ExperimentalWarning.
 # Tag plus OCI-Index-Digest: Builds desselben Commits verwenden bytegenau

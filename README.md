@@ -62,7 +62,7 @@ Kunden registrieren sich im Portal, eröffnen Tickets (im Browser oder per E-Mai
 
 | Bereich | Technologie |
 |---|---|
-| Laufzeit | Node.js ≥ 22.5 (Produktionsimage: 26) |
+| Laufzeit | Node.js ≥ 22.13 (Produktionsimage: 26) |
 | Web-Framework | Express 5 |
 | Templates | EJS (serverseitiges Rendering) |
 | Datenbank | SQLite über das eingebaute `node:sqlite` (keine externe DB nötig) |
@@ -76,7 +76,7 @@ Kunden registrieren sich im Portal, eröffnen Tickets (im Browser oder per E-Mai
 
 ## Voraussetzungen
 
-- **Node.js 22.5 oder neuer** (getestet mit 22, 24 und 26) und npm
+- **Node.js 22.13 oder neuer** (getestet mit 22, 24 und 26) und npm
 - **Browser:** Chrome/Edge 130+, Firefox 132+ oder Safari 18+ (Bootstrap 6).
 - Optional: **Docker** und **Docker Compose** für den Produktivbetrieb
 - Optional: SMTP-Zugang (Mailversand) und IMAP-Postfach (Antworten per Mail)

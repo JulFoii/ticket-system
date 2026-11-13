@@ -1,6 +1,6 @@
-# >=22.5 fuer node:sqlite (siehe lib/db.js) — v24 ausgeliefert, damit die
-# eingebaute SQLite-API ohne --experimental-sqlite-Flag und ohne
-# ExperimentalWarning laeuft (auf v22/23 noch flag- bzw. warnungspflichtig).
+# >=22.5 fuer node:sqlite (siehe lib/db.js) — v26 wird im Produktionsimage
+# ausgeliefert. Die eingebaute SQLite-API laeuft damit ohne
+# --experimental-sqlite-Flag und ohne ExperimentalWarning.
 # Tag plus OCI-Index-Digest: Builds desselben Commits verwenden bytegenau
 # dasselbe Multi-Arch-Basisimage. Dependabot aktualisiert beides per PR.
 FROM node:26.12-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797
